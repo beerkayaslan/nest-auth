@@ -14,7 +14,7 @@ export class AuthService {
         private jwtService: JwtService
     ) { }
 
-    async validateUser(LoginDto: LoginDto) {
+    async loginUser(LoginDto: LoginDto) {
         const { email, password } = LoginDto;
 
 
