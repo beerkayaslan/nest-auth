@@ -1,4 +1,4 @@
-import { HttpException, Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -21,13 +21,13 @@ export class AuthService {
         const user = await this.UserModel.findOne({ email });
 
         if (!user) {
-            throw new HttpException('Invalid credentials', 401);
+            throw new BadRequestException('Invalid credentials');
         }
 
         const isMatchPassword = await bcrypt.compare(password, user.password);
 
         if (!isMatchPassword) {
-            throw new HttpException('Invalid credentials', 401);
+            throw new BadRequestException('Invalid credentials');
         }
 
         const acces_token = await this.jwtService.signAsync({
@@ -43,7 +43,7 @@ export class AuthService {
             sub: user._id,
         }, {
             secret: "refresh_token_secret_key",
-            expiresIn: "15s",
+            expiresIn: "1d",
         });
 
         const response = {
@@ -63,7 +63,7 @@ export class AuthService {
         const user = await this.UserModel.findOne({ email });
 
         if (user) {
-            throw new HttpException('User already exists', 409);
+            throw new BadRequestException('User already exists');
         }
 
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -80,14 +80,14 @@ export class AuthService {
 
     async refreshToken(refreshToken: string) {
 
+
         try {
             const payload = await this.jwtService.verifyAsync(refreshToken, {
                 secret: "refresh_token_secret_key",
             });
 
-
             if (!payload) {
-                throw new HttpException('Invalid token', 401);
+                throw new BadRequestException('Invalid token');
             }
 
             const acces_token = await this.jwtService.signAsync({
@@ -102,7 +102,7 @@ export class AuthService {
                 email: payload.email,
             }, {
                 secret: "refresh_token_secret_key",
-                expiresIn: "15s",
+                expiresIn: "1d",
             });
 
             const response = {
@@ -120,5 +120,13 @@ export class AuthService {
             throw new UnauthorizedException();
         }
 
+    }
+
+    async me(accesToken: string) {
+        const payload = await this.jwtService.verifyAsync(accesToken, {
+            secret: "acces_token_secret_key",
+        });
+
+        return payload;
     }
 }

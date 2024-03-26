@@ -1,4 +1,4 @@
-import { Controller, Get, UseGuards, Request, Post, Body } from '@nestjs/common';
+import { Controller, Get, UseGuards, Request, Post, Body, Headers } from '@nestjs/common';
 import { LoginDto } from './dto/login.dto';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -19,8 +19,15 @@ export class AuthController {
   }
 
   @Post('refresh')
-  async refresh(@Body() refreshToken: { refresh_token: string }) {
-    return this.authService.refreshToken(refreshToken.refresh_token);
+  async refresh(@Body() refreshToken: { token: string }) {
+    return this.authService.refreshToken(refreshToken.token);
+  }
+
+  @Get('me')
+  @UseGuards(AuthGuard)
+  async me(@Headers('Authorization') authorizationHeader: string){
+    const accessToken = authorizationHeader.split(' ')[1];
+    return this.authService.me(accessToken);
   }
 
   @Get('profile')
