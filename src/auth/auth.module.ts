@@ -10,9 +10,7 @@ import { ConfigService } from '@nestjs/config';
   imports: [
     JwtModule.registerAsync({
       inject: [ConfigService],
-      useFactory: async (configService: ConfigService) => ({
-
-      }),
+      useFactory: async (configService: ConfigService) => ({}),
     }),
     MongooseModule.forFeature([
       {

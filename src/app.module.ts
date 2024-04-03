@@ -6,11 +6,10 @@ import { ConfigModule } from '@nestjs/config';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: '.env',
       isGlobal: true,
     }),
-    MongooseModule.forRoot('mongodb://localhost:27017', {
-      dbName: 'nest-auth-app',
+    MongooseModule.forRoot(config().DB_HOST, {
+      dbName: config().DB_NAME,
     }),
     AuthModule
   ],
